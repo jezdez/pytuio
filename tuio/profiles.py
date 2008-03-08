@@ -2,8 +2,14 @@ from objects import *
 
 class BaseProfile(object):
     """An abstract profile as defined in the TUIO protocol"""
+
+    # the OSC address that is used for the messages of this profile
+    address = None
+
+    # the name that is used to populate a convenient variable to access objs()
+    list_label = None
+
     def __init__(self):
-        self.address = None
         self.objects = {}
         self.sessions = []
 
@@ -29,11 +35,22 @@ class BaseProfile(object):
         client.last_frame = client.current_frame
         client.current_frame = message[3]
 
+    def objs(self):
+        """
+        Returns a generator list of tracked objects which are recognized with
+        this profile and are in the current session.
+        """
+        for obj in self.objects.itervalues():
+            if obj.sessionid in self.sessions:
+                yield obj
+
 class Tuio2DcurProfile(BaseProfile):
     """A profile for a 2D cursor, e.g. a finger."""
+    address = "/tuio/2Dcur"
+    list_label = "cursors"
+
     def __init__(self):
         super(Tuio2DcurProfile, self).__init__()
-        self.address = "/tuio/2Dcur"
 
     def set(self, client, message):
         sessionid = message[3]
@@ -50,9 +67,11 @@ class Tuio2DcurProfile(BaseProfile):
 
 class Tuio2DobjProfile(BaseProfile):
     """A profile for a 2D tracking object, e.g. a fiducial."""
+    address = "/tuio/2Dobj"
+    list_label = "objects"
+
     def __init__(self):
         super(Tuio2DobjProfile, self).__init__()
-        self.address = "/tuio/2Dobj"
 
     def set(self, client, message):
         sessionid, objectid = message[3:5]
@@ -66,9 +85,11 @@ class Tuio2DobjProfile(BaseProfile):
 
 class Tuio25DobjProfile(BaseProfile):
     """A profile for a 2,5D tracking object, e.g. a fiducial."""
+    address = "/tuio/25Dobj"
+    list_label = "twoandahalf"
+
     def __init__(self):
-        super(Tuio2DobjProfile, self).__init__()
-        self.address = "/tuio/25Dobj"
+        super(Tuio25DobjProfile, self).__init__()
 
     def set(self, client, message):
         sessionid, objectid = message[3:5]
