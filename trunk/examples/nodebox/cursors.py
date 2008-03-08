@@ -1,16 +1,22 @@
 tuio = ximport("tuio")
 
-size(320,240)
+size(640, 480)
 speed(30)
 
 def setup():
-    fontsize(20)
-    global t
-    t = tuio.tracking()
+    global tracking
+    tracking = tuio.Tracking()
 
 def draw():
-    for cursor in t.cursors:
+    global tracking
+    tracking.update()
+    fontsize(10)
+    for cursor in tracking.cursors:
         x = cursor.xpos * WIDTH
         y = cursor.ypos * HEIGHT
         oval(x, y, 10, 10)
-        text(cursor.label, x, y)
+        text(cursor, x, y)
+
+def stop():
+    global tracking
+    tracking.stop()

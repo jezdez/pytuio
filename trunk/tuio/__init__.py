@@ -2,46 +2,49 @@
 
 __author__    = "Jannis Leidel"
 __version__   = "0.1"
-__copyright__ = "Copyright (c) 2008 Jannis Leidel"
+__copyright__ = "Copyright (c) 2007-2008 Jannis Leidel"
 __license__   = "MIT"
 
 import os
 import sys
 import math
 import socket
+import inspect
+
 import OSC
-from profiles import Tuio2DobjProfile, Tuio2DcurProfile
+import profiles
 
 class CallbackError(Exception):
     pass
 
 class Tracking(object):
-    def __init__(self, host="127.0.0.1", port=3333):
+    def __init__(self, host='127.0.0.1', port=3333):
         self.host = host
         self.port = port
         self.current_frame = 0
         self.last_frame = 0
 
-        # Defines the possible OSC profiles
-        self.profiles = {
-            "2Dobj": Tuio2DobjProfile(),
-            "2Dcur": Tuio2DcurProfile(),
-        }
-
+        self.open_socket()
         self.manager = OSC.CallbackManager()
+        self.profiles = self.load_profiles()
+
+    def open_socket(self):
+        """
+        Opens the socket and binds to the given host and port. Uses
+        SO_REUSEPORT to be as robust as possible.
+        """
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        self.socket.setblocking(0)
         self.socket.bind((self.host, self.port))
-        self.socket.setblocking(1)
+    start = open_socket
 
-        # Mapping callback method to every profile
-        for profile in self.profiles.itervalues():
-            self.manager.add(self.callback, profile.address)
-
-    def respawn(self):
-        self.socket.bind((self.host, self.port))
-
-    def die(self):
+    def close_socket(self):
+        """
+        Closes the socket connection
+        """
         self.socket.close()
+    stop = close_socket
 
     def refreshed(self):
         """
@@ -49,12 +52,30 @@ class Tracking(object):
         """
         return self.current_frame >= self.last_frame
     
+    def load_profiles(self):
+        """
+        Loads all possible TUIO profiles and returns a dictionary with the
+        profile addresses as keys and an instance of a profile as the value 
+        """
+        _profiles = {}
+        for (name, klass) in inspect.getmembers(profiles):
+            if inspect.isclass(klass) and name.endswith('Profile') and name != 'BaseProfile':
+                # Adding profile to the self.profiles dictionary
+                profile = klass()
+                _profiles[profile.address] = profile
+                # setting convenient variable to access objects of profile
+                try:
+                    setattr(self, profile.list_label, profile.objs)
+                except AttributeError:
+                    continue
+                # Mapping callback method to every profile
+                self.manager.add(self.callback, profile.address)
+        return _profiles
+    
     def get_profile(self, profile):
-        if profile in self.profiles:
-            return self.profiles[profile]
-        return None
+        return self.profiles.get(profile, None)
 
-    def pump(self):
+    def update(self):
         """
         Tells the connection manager to receive the next 1024 byte of messages
         to analyze.
@@ -65,34 +86,15 @@ class Tracking(object):
             pass
 
     def callback(self, *incoming):
+        """
+        Gets called by the CallbackManager if a new message was received 
+        """
         message = incoming[0]
-        if len(message) > 1:
-            address, command = message[0][1:].split("/")[-1], message[2]
-            if address in self.profiles:
+        if message:
+            address, command = message[0], message[2]
+            profile = self.get_profile(address)
+            if profile is not None:
                 try:
-                    getattr(self.profiles[address], command)(self, message)
+                    getattr(profile, command)(self, message)
                 except AttributeError:
                     pass
-    
-    def _objects(self):
-        self.pump()
-        profile = self.get_profile('2Dobj')
-        if profile is not None:
-            for obj in profile.objects.itervalues():
-                if obj.sessionid in profile.sessions:
-                    yield obj
-    
-    objects = property(_objects)
-
-    def _cursors(self):
-        self.pump()
-        profile = self.get_profile('2Dcur')
-        if profile is not None:
-            for obj in profile.objects.itervalues():
-                if obj.sessionid in profile.sessions:
-                    yield obj
-    
-    cursors = property(_cursors)
-
-def tracking(host="127.0.0.1", port=3333):
-    return Tracking(host, port)
