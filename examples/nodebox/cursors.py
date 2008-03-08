@@ -11,11 +11,11 @@ def draw():
     global tracking
     tracking.update()
     fontsize(10)
-    for cursor in tracking.cursors:
-        x = cursor.xpos * WIDTH
-        y = cursor.ypos * HEIGHT
+    for cur in tracking.cursors():
+        x = cur.xpos * WIDTH
+        y = cur.ypos * HEIGHT
         oval(x, y, 10, 10)
-        text(cursor, x, y)
+        text(cur, x, y)
 
 def stop():
     global tracking
