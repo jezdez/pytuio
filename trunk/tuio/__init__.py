@@ -58,7 +58,7 @@ class Tracking(object):
         profile addresses as keys and an instance of a profile as the value 
         """
         _profiles = {}
-        for (name, klass) in inspect.getmembers(profiles):
+        for name, klass in inspect.getmembers(profiles):
             if inspect.isclass(klass) and name.endswith('Profile') and name != 'BaseProfile':
                 # Adding profile to the self.profiles dictionary
                 profile = klass()
