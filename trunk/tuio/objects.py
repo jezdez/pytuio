@@ -71,6 +71,6 @@ class Tuio2DObject(BaseObject):
             raise UpdateError
     
     def _label(self):
-        return u"%s, %s°" % (str(self.id), str(int(self.angle)))
+        return "%s, %s°" % (str(self.id), str(int(self.angle)))
 
     label = property(_label)
