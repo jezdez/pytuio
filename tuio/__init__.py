@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+"""A Python library that understands the TUIO protocol"""
 
 __author__    = "Jannis Leidel"
 __version__   = "0.1"
 __copyright__ = "Copyright (c) 2007-2008 Jannis Leidel"
 __license__   = "MIT"
+__url__       = "http://code.google.com/p/pytuio/"
 
 import os
 import sys
@@ -73,7 +75,13 @@ class Tracking(object):
         return _profiles
     
     def get_profile(self, profile):
+        """Returns a specific profile from the profile list and otherwise None"""
         return self.profiles.get(profile, None)
+    
+    def get_helpers(self):
+        """Returns a list of helper functions that provide access to the
+        objects of each profile."""
+        return list([profile.list_label for profile in self.profiles.values()])
 
     def update(self):
         """
