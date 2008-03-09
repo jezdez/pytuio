@@ -61,13 +61,13 @@ Basic use
 
 To use this library in general you should follow these steps:
 
-#. Get a camera or webcam, like iSight, Quickcam, etc., install its drivers if 
+1. Get a camera or webcam, like iSight, Quickcam, etc., install its drivers if 
    necessary, try it with the reacTIVision_ software
-#. Look in the ``examples`` directory to get started with Python code. Ask 
+2. Look in the ``examples`` directory to get started with Python code. Ask 
    your local Python guru if needed.
-#. Build the tangible interface, table, stage, vehicle, game, whatever.
-#. Combine it with Blender_, Pygame_ or Nodebox_
-#. Use the source, Luke.
+3. Build the tangible interface, table, stage, vehicle, game, whatever.
+4. Combine it with Blender_, Pygame_ or Nodebox_
+5. Use the source, Luke.
 
 .. _Blender: http://blender.org 
 .. _Pygame: http://pygame.org
