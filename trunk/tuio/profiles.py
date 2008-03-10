@@ -1,6 +1,6 @@
 from objects import *
 
-class BaseProfile(object):
+class TuioProfile(object):
     """An abstract profile as defined in the TUIO protocol"""
 
     # the OSC address that is used for the messages of this profile
@@ -29,7 +29,7 @@ class BaseProfile(object):
 
     def fseq(self, client, message):
         """
-        fseq messages associates a unique frame id with a set of set
+        fseq messages associate a unique frame id with a set of set
         and alive messages
         """
         client.last_frame = client.current_frame
@@ -44,7 +44,7 @@ class BaseProfile(object):
             if obj.sessionid in self.sessions:
                 yield obj
 
-class Tuio2DcurProfile(BaseProfile):
+class Tuio2DcurProfile(TuioProfile):
     """A profile for a 2D cursor, e.g. a finger."""
     address = "/tuio/2Dcur"
     list_label = "cursors"
@@ -65,7 +65,7 @@ class Tuio2DcurProfile(BaseProfile):
                 if obj not in self.sessions:
                     del self.objects[obj]
 
-class Tuio2DobjProfile(BaseProfile):
+class Tuio2DobjProfile(TuioProfile):
     """A profile for a 2D tracking object, e.g. a fiducial."""
     address = "/tuio/2Dobj"
     list_label = "objects"
@@ -77,24 +77,6 @@ class Tuio2DobjProfile(BaseProfile):
         sessionid, objectid = message[3:5]
         if objectid not in self.objects:
             self.objects[objectid] = Tuio2DObject(objectid, sessionid)
-        self.objects[objectid].update(sessionid, message[5:])
-
-    def alive(self, client, message):
-        if client.refreshed():
-            self.sessions = message[3:]
-
-class Tuio25DobjProfile(BaseProfile):
-    """A profile for a 2,5D tracking object, e.g. a fiducial."""
-    address = "/tuio/25Dobj"
-    list_label = "twoandahalf"
-
-    def __init__(self):
-        super(Tuio25DobjProfile, self).__init__()
-
-    def set(self, client, message):
-        sessionid, objectid = message[3:5]
-        if objectid not in self.objects:
-            self.objects[objectid] = TuioObject(objectid, sessionid)
         self.objects[objectid].update(sessionid, message[5:])
 
     def alive(self, client, message):

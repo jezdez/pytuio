@@ -113,7 +113,7 @@ A simple example can be found in the ``examples`` directory in
    
     print "list functions to access tracked objects:", tracking.get_helpers()
 
-5. Prepare to receive the data in an infinite loop::
+5. Prepare to receive the data in an infinite or event loop::
 
     try:
         while 1:
@@ -134,10 +134,108 @@ A simple example can be found in the ``examples`` directory in
 Objects
 -------
 
+The ``objects`` submodule contains a serious of classes that represent types
+of trangible objects. They all are subclasses of the also included
+``objects.TuioObject``. The following objects types are defined at the moment:
+
+1. ``Tuio2DCursor`` - An abstract cursor object, e.g. a finger.
+   This object has limited information and is only sent by reacTIVision if the
+   smallest possible fiducial marker was found: a point. In combination with a
+   tangible table this can also be achieved by using fingers on the table
+   surface.
+
+   It has the following attributes:
+   
+   - ``sessionid`` - The unique sessionid it belongs to
+   - ``xpos`` - The relative position on the x-axis
+   - ``ypos`` - The relative position on the y-axis
+   - ``xmot`` - The movement vector on the x-axis
+   - ``ymot`` - The movement vector on the y-axis
+   - ``mot_accel`` - The motion acceleration
+
+2. ``Tuio2DObject`` - An abstract object representing a fiducial.
+   This object has detailed information about its state and is sent by
+   reacTIVision if a fiducial was recognized.
+   
+   It has the following attributes:
+   
+   - ``sessionid`` - The unique sessionid it belongs to
+   - ``xpos`` - The relative position on the x-axis
+   - ``ypos`` - The relative position on the y-axis
+   - ``angle`` - The current angle in degrees
+   - ``xmot`` - The movement vector on the x-axis
+   - ``ymot`` - The movement vector on the y-axis
+   - ``rot_vector`` - The rotation vector
+   - ``mot_accel`` - The motion acceleration
+   - ``rot_accel`` - The rotation acceleration
+
+The TUIO protocol provides even more possible object types, depending on the
+purpose of the intactive surface, e.g.:
+
+   - 2.5D Interactive Surface - ``Tuio25DCursor`` and ``Tuio25DObject``
+   - 3D Interactive Surface - ``Tuio3DCursor`` and ``Tuio3DObject``
+   - raw profile - at the moment only ``dtouch`` specs are supported
+
+But these profiles are left to be implemented by the user. Just have a look
+in ``objects.py`` and ``profiles.py`` and subclass the base classes there.
+
 Profiles
 --------
+
+The ``profiles`` submodule contains a number of abstract descriptions of what
+should happen if a certain object type is used. Depending on the desirable
+tangible object attributes you can customize the profiles for your own need.
+
+For example, if you want to receive the data for a 2D tracking object you need
+to use the according profile, because it knows how to handle the dataset of
+this type of object.
+
+Every profile subclasses from a ``TuioProfile`` base class that has the
+following required methods whose names originate from the name of the raw
+OSC message:
+
+   - ``set`` - The state of each alive (but unchanged) fiducial is periodically
+     resent with 'set' messages. The attributes are sent as a list or tuple.
+
+   - ``alive`` - The 'alive' message contains the session ids of all alive
+     fiducials known to reacTIVision.
+
+   - ``fseq`` - fseq messages associate a unique frame id with a set of ``set``
+     and ``alive`` messages
+
+Other methods and attributes are:
+
+   - ``list_label`` - Defines the names of the helper methods that are
+     automatically created while initialization of the ``Tracking`` instance
+     and maps to the ``objs`` method of the used profile.
+
+   - ``address`` - Defines the OSC address to bind to the ``CallBackmanager``
+     and start listening to while starting the ``Tracking`` instance.
+
+   - ``objs`` - Returns a generator list of all tracked objects which are
+     recognized with this profile and are in the current session. Though
+     please use the helper methods whose names are defined in the class
+     variable ``list_label``.
 
 OSC
 ---
 
+This submodule does most of the heavy lifting of decoding the OSC messages
+used in the TUIO protocol and provides a convenient ``CallbackManager``.
+It was written by Daniel Holth and Clinton McChesney.
 
+What happens next?
+==================
+
+This library should be the start of lecturing about tangible interfaces in
+combination with the ease of use of the Python programming language.
+
+Feel free to contact the Author Jannis Leidel <jannis@leidel.info> to get to
+know more about tangible user interfaces, integration into Pygame and future
+features.
+
+You can of course use the issue tracking service of its Google Code project::
+
+    http://code.google.com/p/pytuio/issues/list
+    
+to ask for new features, report bugs or become a project member.
