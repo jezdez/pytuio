@@ -61,7 +61,7 @@ class Tracking(object):
         """
         _profiles = {}
         for name, klass in inspect.getmembers(profiles):
-            if inspect.isclass(klass) and name.endswith('Profile') and name != 'BaseProfile':
+            if inspect.isclass(klass) and name.endswith('Profile') and name != 'TuioProfile':
                 # Adding profile to the self.profiles dictionary
                 profile = klass()
                 _profiles[profile.address] = profile
