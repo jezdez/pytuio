@@ -134,9 +134,9 @@ A simple example can be found in the ``examples`` directory in
 Objects
 -------
 
-The ``objects`` submodule contains a serious of classes that represent types
-of trangible objects. They all are subclasses of the also included
-``objects.TuioObject``. The following objects types are defined at the moment:
+The ``objects`` submodule contains a series of classes that represent types
+of tangible objects. They all are subclasses of the also included
+``objects.TuioObject``. The following object types are defined at the moment:
 
 1. ``Tuio2DCursor`` - An abstract cursor object, e.g. a finger.
    This object has limited information and is only sent by reacTIVision if the

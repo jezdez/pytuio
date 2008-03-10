@@ -1,7 +1,7 @@
 from distutils.core import setup
 import tuio
 
-setup(name=tuio.__name__,
+setup(name='pytuio',
       version=tuio.__version__,
       description=tuio.__doc__,
       author=tuio.__author__,
