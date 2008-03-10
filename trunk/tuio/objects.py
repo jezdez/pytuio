@@ -56,7 +56,7 @@ class Tuio2DObject(TuioObject):
         self.id = objectid
         self.sessionid = sessionid
         self.xpos = self.ypos = self.angle = 0.0
-        self.xmot, self.ymot, self.mot_accel, self.mot_speed= 0.0
+        self.xmot = self.ymot = self.mot_accel = self.mot_speed = 0.0
         self.rot_speed = self.rot_accel = 0.0
 
     def update(self, sessionid, args):
@@ -72,6 +72,6 @@ class Tuio2DObject(TuioObject):
             raise UpdateError
     
     def _label(self):
-        return "%s, %s°" % (str(self.id), str(int(self.angle)))
+        return "%s, %s degrees" % (str(self.id), str(int(self.angle)))
 
     label = property(_label)
