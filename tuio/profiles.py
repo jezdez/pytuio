@@ -35,6 +35,9 @@ class TuioProfile(object):
         client.last_frame = client.current_frame
         client.current_frame = message[3]
 
+    def toStr(self, id):
+        return str(self.objects[id])
+    
     def objs(self):
         """
         Returns a generator list of tracked objects which are recognized with
@@ -72,7 +75,7 @@ class Tuio2DobjProfile(TuioProfile):
 
     def __init__(self):
         super(Tuio2DobjProfile, self).__init__()
-
+    
     def set(self, client, message):
         sessionid, objectid = message[3:5]
         if objectid not in self.objects:
