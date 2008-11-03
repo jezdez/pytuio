@@ -12,9 +12,9 @@ import sys
 import math
 import socket
 import inspect
-
 import OSC
 import profiles
+import Event
 
 class CallbackError(Exception):
     pass
@@ -25,10 +25,10 @@ class Tracking(object):
         self.port = port
         self.current_frame = 0
         self.last_frame = 0
-
         self.open_socket()
         self.manager = OSC.CallbackManager()
         self.profiles = self.load_profiles()
+        self.eventManager = Event.EventManager()
 
     def open_socket(self):
         """
@@ -36,7 +36,7 @@ class Tracking(object):
         SO_REUSEPORT to be as robust as possible.
         """
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.setblocking(0)
         self.socket.bind((self.host, self.port))
     start = open_socket
@@ -104,5 +104,16 @@ class Tracking(object):
             if profile is not None:
                 try:
                     getattr(profile, command)(self, message)
+                    if command == 'set' or command == 'add':
+                        #Check which type of profile was received and create the proper event
+                        if str(type(profile)) == "<class 'tuio.profiles.Tuio2DcurProfile'>":
+                            evt = Event.CursorEvent(profile, message)
+                        else:
+                            evt = Event.ObjectEvent(profile,message)
+                        #Notifys the listeners about the new event
+                        self.eventManager.notify_listeners(evt)
                 except AttributeError:
                     pass
+
+
+        

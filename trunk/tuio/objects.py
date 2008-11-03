@@ -43,8 +43,8 @@ class Tuio2DCursor(TuioObject):
             raise UpdateError
 
     def _label(self):
-        return " "
-
+        return "id = %s x = %s, y= %s " % (str(self.sessionid), str(self.xpos), str(self.ypos))
+    
     label = property(_label)
 
 class Tuio2DObject(TuioObject):
@@ -72,6 +72,6 @@ class Tuio2DObject(TuioObject):
             raise UpdateError
     
     def _label(self):
-        return "%s, %s degrees" % (str(self.id), str(int(self.angle)))
+        return "id = %s x = %s, y= %s, %s degrees " % (str(self.sessionid), str(self.xpos), str(self.ypos), str(int(self.angle)))
 
     label = property(_label)
