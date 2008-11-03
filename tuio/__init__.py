@@ -14,7 +14,7 @@ import socket
 import inspect
 import OSC
 import profiles
-import Event
+import event
 
 class CallbackError(Exception):
     pass
@@ -28,7 +28,7 @@ class Tracking(object):
         self.open_socket()
         self.manager = OSC.CallbackManager()
         self.profiles = self.load_profiles()
-        self.eventManager = Event.EventManager()
+        self.eventManager = event.EventManager()
 
     def open_socket(self):
         """
@@ -105,12 +105,10 @@ class Tracking(object):
                 try:
                     getattr(profile, command)(self, message)
                     if command == 'set' or command == 'add':
-                        #Check which type of profile was received and create the proper event
                         if str(type(profile)) == "<class 'tuio.profiles.Tuio2DcurProfile'>":
-                            evt = Event.CursorEvent(profile, message)
+                            evt = event.CursorEvent(profile, message)
                         else:
-                            evt = Event.ObjectEvent(profile,message)
-                        #Notifys the listeners about the new event
+                            evt = event.ObjectEvent(profile,message)
                         self.eventManager.notify_listeners(evt)
                 except AttributeError:
                     pass
