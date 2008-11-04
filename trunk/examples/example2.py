@@ -1,6 +1,6 @@
 import tuio
 tracking = tuio.Tracking()
-listener = tuio.Event.Listener("Event Listener", tracking.eventManager)
+listener = tuio.observer.Listener("Event Listener", tracking.eventManager)
 
 try:
     while 1:
