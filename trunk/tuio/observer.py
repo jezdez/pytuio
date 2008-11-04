@@ -22,13 +22,12 @@ class AbstractEventManager:
     def notify_listeners(self, event):
         raise NotImplementedError("Must subclass me")
  
-class Listener:
+class AbstractListener:
     def __init__(self, name, subject):
         self.name = name
         subject.register(self)
- 
     def notify(self, event):
-        print str(event)
+        raise NotImplementedError("Must subclass me")
  
 class EventManager(AbstractEventManager):
     def __init__(self):
@@ -45,3 +44,5 @@ class EventManager(AbstractEventManager):
     def notify_listeners(self, event):
         for listener in self.listeners:
             listener.notify(event)
+
+

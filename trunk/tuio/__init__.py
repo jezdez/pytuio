@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """A Python library that understands the TUIO protocol"""
 
-__author__    = "Jannis Leidel"
+__author__    = "Jannis Leidel, David Anderson"
 __version__   = "0.1"
-__copyright__ = "Copyright (c) 2007-2008 Jannis Leidel"
+__copyright__ = "Copyright (c) 2007-2008 Jannis Leidel, David Anderson"
 __license__   = "MIT"
 __url__       = "http://code.google.com/p/pytuio/"
 
@@ -14,12 +14,18 @@ import socket
 import inspect
 import OSC
 import profiles
-import event
+import observer
 
 class CallbackError(Exception):
     pass
 
 class Tracking(object):
+    #implements Tracking as a SingleTon
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'self'):
+            cls.self = object.__new__(cls)
+        return cls.self
+
     def __init__(self, host='127.0.0.1', port=3333):
         self.host = host
         self.port = port
@@ -28,7 +34,7 @@ class Tracking(object):
         self.open_socket()
         self.manager = OSC.CallbackManager()
         self.profiles = self.load_profiles()
-        self.eventManager = event.EventManager()
+        self.eventManager = observer.EventManager()
 
     def open_socket(self):
         """
@@ -90,7 +96,9 @@ class Tracking(object):
         """
         try:
             self.manager.handle(self.socket.recv(1024))
+
         except socket.error:
+           
             pass
 
     def callback(self, *incoming):
@@ -106,12 +114,22 @@ class Tracking(object):
                     getattr(profile, command)(self, message)
                     if command == 'set' or command == 'add':
                         if str(type(profile)) == "<class 'tuio.profiles.Tuio2DcurProfile'>":
-                            evt = event.CursorEvent(profile, message)
+                            evt = observer.CursorEvent(profile, message)
                         else:
-                            evt = event.ObjectEvent(profile,message)
+                            evt = observer.ObjectEvent(profile,message)
                         self.eventManager.notify_listeners(evt)
                 except AttributeError:
                     pass
+#Instantiate the unique Tracking Class
+tracking = Tracking()
+#An infinite loop to keep updating the tracker
+def mainLoop():
+    try:
+        while 1:
+            tracking.update()
+    except KeyboardInterrupt:
+        tracking.stop()
 
+def getEventManager():
+    return tracking.eventManager
 
-        
