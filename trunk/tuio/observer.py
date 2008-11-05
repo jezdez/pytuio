@@ -1,16 +1,16 @@
 class CursorEvent(object):
     def __init__(self, objeto, message):
-        self.objeto = objeto
+        self.object = objeto.objects[message[3]]
         self.message = message
     def __str__(self): 
-        return self.objeto.toStr(self.message[3])
+        return str(self.object)
          
 class ObjectEvent(object):
     def __init__(self, objeto, message):
-        self.objeto = objeto
+        self.object = objeto.objects[message[4]]
         self.message = message
     def __str__(self): 
-        return self.objeto.toStr(self.message[4]) 
+        return str(self.object) 
             
 class AbstractEventManager:
     def register(self, listener):
